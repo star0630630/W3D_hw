@@ -12,10 +12,7 @@
     text-align: center;
     color: #ff0000
 }
-<<<<<<< HEAD
-=======
 
->>>>>>> master
 </style>
 </head>
 
@@ -40,19 +37,8 @@
 <source src="music/open.mp3" type='audio/mp3'>
 </audio>
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-
 <script src="js/three.min.js"></script>
 <script src="js/OrbitControls.js"></script>
-=======
-<script src="http://cdnjs.cloudflare.com/ajax/libs/three.js/r70/three.min.js"></script>
-<script src="https://dl.dropboxusercontent.com/u/3587259/Code/Threejs/OrbitControls.js">
->>>>>>> master
-=======
-<script src="js/three.min.js"></script>
-<script src="js/OrbitControls.js"></script>
->>>>>>> master
     
 </script>
 <script> 
@@ -63,13 +49,6 @@ var cubeU,cubeD,cubeL,cubeR,door;
 var cylinder1,cylinder2;
 var doorC;
 var collisionSound, soundTrack,soundTrack1;
-<<<<<<< HEAD
-init();
-animate();
-function Toggle() {
-    turn=turn *-1;
-}
-=======
 
 init();
 animate();
@@ -78,22 +57,12 @@ function Toggle() {
     turn=turn *-1;
 }
 
->>>>>>> master
 function init() {
 	collisionSound = document.getElementById ('collisionsound');
 	soundTrack = document.getElementById ('soundtrack');
 	soundTrack1 = document.getElementById ('soundtrack1');
 	open = document.getElementById ('open');
 	scene = new THREE.Scene();
-<<<<<<< HEAD
-    camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 10000);
-    camera.position.z = 500;
-    scene.add(camera);
-    geometry = new THREE.BoxGeometry(20, 20, 20);
-    material = new THREE.MeshLambertMaterial();
-    mesh = new THREE.Mesh(geometry, material);
-    //scene.add(mesh);
-=======
 
     camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 10000);
     camera.position.z = 500;
@@ -105,7 +74,6 @@ function init() {
     mesh = new THREE.Mesh(geometry, material);
     //scene.add(mesh);
 
->>>>>>> master
     ///////////////////////////////////////////////////////////////////////////////////bump map
 	THREE.ImageUtils.crossOrigin = '';
     var texture = THREE.ImageUtils.loadTexture('images/wood.png');
@@ -113,38 +81,26 @@ function init() {
     ///////////////////////////////////////////////////////////////////////////////////門框
 	cubeD = new THREE.Mesh (new THREE.BoxGeometry (80,5,10),
 							new THREE.MeshLambertMaterial ({color: 0xDC7100}));
-<<<<<<< HEAD
-=======
 
->>>>>>> master
 	cubeD.position.set (42.5, 2.5, -5);
 	scene.add (cubeD);
 	
 	cubeR = new THREE.Mesh (new THREE.BoxGeometry (5,150,10),
 							new THREE.MeshLambertMaterial ({color: 0xDC7100}));
-<<<<<<< HEAD
-=======
 
->>>>>>> master
 	cubeR.position.set (2.5, 75, -5);
 	scene.add (cubeR);
 	
 	cubeL = new THREE.Mesh (new THREE.BoxGeometry (5,150,10),
 							new THREE.MeshLambertMaterial ({color: 0xDC7100}));
-<<<<<<< HEAD
-=======
 
->>>>>>> master
 	cubeL.position.set (85, 75, -5);
 	scene.add (cubeL);
 	
 	
     cubeU = new THREE.Mesh (new THREE.BoxGeometry (80,5,10),
 							new THREE.MeshLambertMaterial ({color: 0xDC7100}));
-<<<<<<< HEAD
-=======
 
->>>>>>> master
 	cubeU.position.set (42.5, 147.5, -5);
 	scene.add (cubeU);
 	
@@ -177,17 +133,6 @@ function init() {
     light = new THREE.PointLight(0xffffff);
     light.position.set(100, 300, 200);
     scene.add(light);
-<<<<<<< HEAD
-    var gridXZ = new THREE.GridHelper(100, 10);
-    gridXZ.setColors(new THREE.Color(0xff0000), new THREE.Color(0xffffff));
-    scene.add(gridXZ);
-    renderer = new THREE.WebGLRenderer();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setClearColor(0x888888);
-    controls = new THREE.OrbitControls(camera, renderer.domElement);
-    document.body.appendChild(renderer.domElement);
-}
-=======
 
     var gridXZ = new THREE.GridHelper(100, 10);
     gridXZ.setColors(new THREE.Color(0xff0000), new THREE.Color(0xffffff));
@@ -202,7 +147,6 @@ function init() {
     document.body.appendChild(renderer.domElement);
 }
 
->>>>>>> master
 function animate() {
     controls.update();
    
@@ -242,13 +186,9 @@ function animate() {
 			}
 			
 		}
-<<<<<<< HEAD
-	}
-=======
 
 	}
 
->>>>>>> master
     door.rotation.y=angle;
     door.position.set(42.5 * Math.cos(angle), 0, -42.5 * Math.sin(angle));
 	doorC.position.set(78 * Math.cos(angle+.05), 0, -78 * Math.sin(angle+.05));
@@ -258,18 +198,11 @@ function animate() {
     requestAnimationFrame(animate);
     render();
 }
-<<<<<<< HEAD
-=======
 
->>>>>>> master
 function render() {
     renderer.render(scene, camera);
 }
 </script>
 </body>
 
-<<<<<<< HEAD
 </html>
-=======
-</html>
->>>>>>> master
