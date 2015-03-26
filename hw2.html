@@ -107,7 +107,8 @@ function init() {
 	///////////////////////////////////////////////////////////////////////////////////門
     door = new THREE.Mesh (new THREE.BoxGeometry (78,140,7),
 							new THREE.MeshPhongMaterial ({
-							color: 0xA05200,
+							map:texture,
+							//color: 0xA05200,
 							bumpMap: bumptex,
 							bumpScale: 0.9,
                             side: THREE.DoubleSide
