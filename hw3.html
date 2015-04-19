@@ -16,8 +16,9 @@ var clock = new THREE.Clock();
 var scene, renderer, camera, light, lsphere;
 var controls, keyboard = new KeyboardState();
 
-var toycar,tire,tireR,tireplane1_R,tireplane1_L,tireplane2_R,tireplane2_L;
-
+var toycar,tire,tireR,tireplane1_R,tireplane1_L,tireplane2_R,tireplane2_L,tire_UB,tire_D,tire_H,tire_C;
+var angleF = 0.1,angleLR =0;
+var personH,personB,personHandL_1,personHandLL,personHandR_1,personHandRR;
 // state variables of toycar
 var pos = new THREE.Vector3(0,0,0), angle = 0, angleL = 0, angleR = 0;
 var speed = 5, rotspeed = 0;
@@ -90,6 +91,34 @@ function init()
 						});
     tire = new THREE.Mesh (cubeGeometry, cubeMaterial); 
     
+	//輪胎間橫桿
+	tire_UB = new THREE.Mesh (new THREE.BoxGeometry (50,5,15),
+							new THREE.MeshLambertMaterial ({color: 0xFFFFFF}));
+							
+    //方向棍
+	tire_D = new THREE.Mesh (new THREE.CylinderGeometry (2,2,80,30),
+							new THREE.MeshLambertMaterial ({color: 0xFFFFFF}));
+	//方向盤
+	tire_H = new THREE.Mesh (new THREE.CylinderGeometry (2,2,20,30),
+							new THREE.MeshLambertMaterial ({color: 0xFFFFFF}));
+	//下方轉軸
+	tire_C = new THREE.Mesh (new THREE.SphereGeometry (5,20,20,30),
+							new THREE.MeshLambertMaterial ({color: 0xFFFFFF}));
+	
+    //人
+	personH = new THREE.Mesh (new THREE.SphereGeometry (15,20,20,30),
+							new THREE.MeshLambertMaterial ({color: 0xFFFFFF}));
+	personB = new THREE.Mesh (new THREE.CylinderGeometry (2,2,60,30),
+							new THREE.MeshLambertMaterial ({color: 0xFFFFFF}));
+	personHandL_1 = new THREE.Mesh (new THREE.CylinderGeometry (2,2,20,30),
+							new THREE.MeshLambertMaterial ({color: 0xFFFFFF}));
+	personHandR_1 = new THREE.Mesh (new THREE.CylinderGeometry (2,2,20,30),
+							new THREE.MeshLambertMaterial ({color: 0xFFFFFF}));
+    personHandLL = new THREE.Mesh (new THREE.CylinderGeometry (2,2,25,30),
+							new THREE.MeshLambertMaterial ({color: 0xFFFFFF}));
+	personHandRR = new THREE.Mesh (new THREE.CylinderGeometry (2,2,25,30),
+							new THREE.MeshLambertMaterial ({color: 0xFFFFFF}));						
+    							
 	
 	tire.rotation.order = 'ZYX';
 	tireplane1_R.rotation.y = Math.PI/2;
@@ -98,16 +127,32 @@ function init()
 	tireplane2_L.rotation.y = Math.PI/2;
 	
     tire.rotation.z = Math.PI/2;
-    
+    tire_H.rotation.z = Math.PI/2;
+	
 	
 	tireR = new THREE.Mesh (cubeGeometry, cubeMaterial); 
     tireR.rotation.order = 'ZYX';
     tireR.rotation.z = Math.PI/2;
-
+	personHandL_1.rotation.z = 70;
+	personHandR_1.rotation.z = -70;
+	personHandLL.rotation.z = 70;
+	personHandRR.rotation.z = -70;
+	
 	tireplane1_R.position.set (-25.5,20,0);
 	tireplane1_L.position.set (-20.5,20,0);
 	tireplane2_R.position.set (+25.5,20,0);
 	tireplane2_L.position.set (+20.5,20,0);
+	tire_UB.position.set (0,20,0);
+	tire_D.position.set (0,40,0);
+	tire_H.position.set (0,40,0);
+	tire_C.position.set (0,20,7.5);
+	personH.position.set (0,100,-7.5);
+	personB.position.set (0,-35,0);
+	personHandL_1.position.set (10,0,0);
+	personHandR_1.position.set (-10,0,0);
+	personHandLL.position.set (10,-40,0);
+	personHandRR.position.set (-10,-40,0);
+	
 	
     tire.position.set (-23,20,0);
     tireR.position.set (+23,20,0);
@@ -117,13 +162,22 @@ function init()
 	toycar.add (tireplane1_L);
 	toycar.add (tireplane2_R);
 	toycar.add (tireplane2_L);
-	//tire.rotation.y = angle*Math.PI/180;   
+	toycar.add (tire_C);
+	toycar.add (tire_UB);
+	tire_C.add (tire_D);
+	tire_D.add (tire_H);
+	tire_C.add (personH);
+	personH.add (personB);
+	personB.add(personHandL_1);
+	personB.add(personHandR_1);
+	personB.add(personHandLL);
+	personB.add(personHandRR);
 	
 	// add control here (after the camera is defined)
 	controls = new THREE.OrbitControls (camera, renderer.domElement);
 	var gridXZ = new THREE.GridHelper(100, 10);
 	gridXZ.setColors( new THREE.Color(0xff0000), new THREE.Color(0xffffff) );
-	//scene.add(gridXZ);
+	
 
 	// light sphere
 	var lsphereMaterial = new THREE.MeshBasicMaterial ({color: 0xffff00, wireframe:true});
@@ -134,8 +188,6 @@ function init()
 	
 	var pointLight = new THREE.SpotLight (0xffffff, 1.5);
 	pointLight.position.set (0,150,0);
-	//pointLight.angle = Math.PI;
-	//pointLight.exponent = 10;
 	scene.add (pointLight);
 	pointLight.target = tire;
 	
@@ -154,8 +206,6 @@ function init()
 	scene.add(ambientLight);
 
 	
-	renderer.shadowMapEnabled = true;
-	renderer.shadowMapType = THREE.PCFShadowMap;
 	
 	floor.receiveShadow = true;
 	tire.castShadow  = true;  
@@ -164,12 +214,23 @@ function init()
 	tireR.castShadow  = true;  
 	tireplane2_R.castShadow  = true;
 	tireplane2_L.castShadow  = true;
-	
+	tire_UB.castShadow  = true;
+	tire_D.castShadow  = true;
+	tire_H.castShadow  = true;
+	tire_C.castShadow  = true;
+	personH.castShadow  = true;
+	personB.castShadow  = true;
+	personHandL_1.castShadow  = true;
+	personHandR_1.castShadow  = true;
+	personHandLL.castShadow  = true;
+	personHandRR.castShadow  = true;
+	renderer.shadowMapEnabled = true;
+	renderer.shadowMapType = THREE.PCFShadowMap;
 	
 		
 	
 	 document.body.appendChild(renderer.domElement);
-	//window.addEventListener ('resize', onWindowResize, false);
+	
 }
 
 function onWindowResize ()
@@ -202,6 +263,8 @@ function animate()
 		tireR.rotation.y = angleR;
 		tireplane2_L.rotation.z = -angleR;
 		tireplane2_R.rotation.z = -angleR;
+		tire_C.rotation.x = angleF;
+		tire_C.rotation.z = angleLR;
 	}
 	
 	requestAnimationFrame ( animate ); 
@@ -221,22 +284,11 @@ function update()
 	controls.update();
 	keyboard.update();         
 
-	/*if ( keyboard.pressed("left") ) 
-		rotspeed += 0.01; angle += 0.01;               
-	if ( keyboard.pressed("right") )
-		rotspeed -= 0.01;  angle -= 0.01;              
-	if ( keyboard.pressed("up") )  
-		speed += 0.5;		
-	if ( keyboard.pressed("down") )  
-		speed -= 0.5;
-	  
-
-	speed = myclamp (speed, 0.0, 20.0);		
-	rotspeed = myclamp (rotspeed, -2, 2);
-*/ 
 
 	if ( keyboard.pressed("left") )
 	{ 
+		angleLR -= 0.01;
+		if(angleLR<=-0.3) angleLR=-0.3;
 		angleL -= 0.3;
 		angleR -= 0.05;
 		speedL += 0.5; 
@@ -244,6 +296,8 @@ function update()
 	}
 	if ( keyboard.pressed("right") )
 	{
+	    angleLR += 0.01;
+		if(angleLR>=0.3) angleLR=0.3;
 		angleL -= 0.05;
 		angleR -= 0.3;
 		speedR += 0.5; 
@@ -251,6 +305,19 @@ function update()
 	}
 	if ( keyboard.pressed("up") )  
 	{	
+		if(angleLR <=0)
+		{
+		   angleLR+=0.01;
+		   if(angleLR>=0)  angleLR=0;
+		}
+		if(angleLR >=0)
+		{
+		   angleLR-=0.01;
+		   if(angleLR<=0)  angleLR=0;
+		}
+		angleF += 0.01;
+		if(angleF>=0.3) angleF=0.3;
+		
 		angleL -= 0.05;
 		angleR -= 0.05;
 		speedL += 0.5;
@@ -258,6 +325,18 @@ function update()
 	}
 	if ( keyboard.pressed("down") ) 
 	{
+        if(angleLR <=0)
+		{
+		   angleLR+=0.01;
+		   if(angleLR>=0)  angleLR=0;
+		}
+		if(angleLR >=0)
+		{
+		   angleLR-=0.01;
+		   if(angleLR<=0)  angleLR=0;
+		}
+		angleF -= 0.01;
+		if(angleF<=-0.1) angleF=-0.1;
 		angleL += 0.05;
 		angleR += 0.05;
 		speedL -= 0.5;
