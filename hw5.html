@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+<style>
+#container {
+    width:60%;
+    float:left;
+    background-color:pink;
+   margin-top: 5px;
+}
+#cnvsFrame {
+    height: 0;
+    padding-bottom:100%;
+}
+
+.fl {
+    float:left;
+    margin:20px;
+}
+
+.flc {
+    float:right;
+    margin:5px;
+    width:15%;
+}
+body {
+    overflow: auto;
+}
+
+</style>
+</head>
+
+<body> 
+
+<div id="container">
+<div id="cnvsFrame">
+    <canvas id="cnvs"> </canvas>
+</div>
+</div>
+    <audio id="soundtrack1"  style="display:none">
+	<source src="music/KancolaBGM.mp3" type='audio/mp3'>
+	</audio>
+
+    <img src="http://i.imgur.com/Zd0H3Uc.png" class="flc" onclick="javascript:tst(1);" />
+    <img src="http://i.imgur.com/P31Rhj7.png" class="flc" onclick="javascript:tst(2);" />
+	<img src="http://i.imgur.com/YC7nN4c.png" class="flc" onclick="javascript:tst(3);" />
+	<img src="http://i.imgur.com/y5jLdsl.png" class="flc" onclick="javascript:tst(4);" />
+	<img src="http://i.imgur.com/S74ig7l.png" class="flc" onclick="javascript:tst(5);" />
+	<img src="http://i.imgur.com/9h6Xl6v.png" class="flc" onclick="javascript:tst(6);" />
+	
+<div style="clear:both"></div>
+<hr>
+<p class='fl'>
+   
+    
+<script src="js/three.min.js"></script>
+<script src="js/OrbitControls.js"></script>
+    
+</script>
+<script> var camera, scene, renderer, geometry, material, mesh, mesh1,light, controls, ww, hh;
+var tex1, tex2,tex3;
+//////////////////////////////////////合併部分
+var raycaster;
+var mouse = new THREE.Vector2();
+
+var left_box;
+var angle_l = 0;
+var spin_l = 1;
+var theCanvasFrame,theCanvas;
+/////////////////////////////////////////////
+init();
+animate();
+/////////////////////////////////////////////
+function spin (which1) 
+{
+	if (which1 == "left") {
+		spin_l = 1;
+	}else if(which1 == "mid"){
+	    spin_l = 2;
+	}else if(which1 == "right"){
+	    spin_l = 3;
+	}
+}
+/////////////////////////////////////////////
+function init() {
+    theCanvas = document.getElementById("cnvs");
+    theCanvasFrame = document.getElementById("cnvsFrame");
+    soundTrack1 = document.getElementById ('soundtrack1');
+	
+    renderer = new THREE.WebGLRenderer({
+        canvas: theCanvas,
+        antialias: true
+    });
+    ww = theCanvasFrame.clientWidth;
+    hh = theCanvasFrame.clientHeight;
+    renderer.setSize(ww, hh);
+    renderer.setClearColor(0x222222);
+
+    scene = new THREE.Scene();
+
+    camera = new THREE.PerspectiveCamera(50, ww/hh, 1, 1000);
+    camera.position.z = 200;
+    scene.add(camera);
+
+    //////////////////////////////////////////////////////
+    THREE.ImageUtils.crossOrigin = '';
+    tex1 = THREE.ImageUtils.loadTexture('http://i.imgur.com/Zd0H3Uc.png');
+    tex2 = THREE.ImageUtils.loadTexture('http://i.imgur.com/P31Rhj7.png');
+	tex3 = THREE.ImageUtils.loadTexture('http://i.imgur.com/YC7nN4c.png');
+	tex4 = THREE.ImageUtils.loadTexture('http://i.imgur.com/y5jLdsl.png');
+	tex5 = THREE.ImageUtils.loadTexture('http://i.imgur.com/S74ig7l.png');
+	tex6 = THREE.ImageUtils.loadTexture('http://i.imgur.com/9h6Xl6v.png');
+	Ttex1 = THREE.ImageUtils.loadTexture('http://i.imgur.com/95z03Vb.png');
+	Ttex2 = THREE.ImageUtils.loadTexture('images/wood.png');
+    geometry = new THREE.PlaneGeometry(100, 100);
+    material = new THREE.MeshLambertMaterial();
+
+    mesh = new THREE.Mesh(geometry, material);
+    //scene.add(mesh);
+	
+	mesh1 = new THREE.Mesh(geometry, material);
+	mesh1.position.set(0,0,-50);
+	//scene.add(mesh1);
+
+	/////////////////////////////////////////////////////左後牆
+	var leftwell_box_geom = new THREE.BoxGeometry (10,65,110);
+	var leftwell_box_mat = new THREE.MeshBasicMaterial({
+            map: Ttex1,
+            side: THREE.DoubleSide
+        });
+	leftwell_box = new THREE.Mesh (leftwell_box_geom, leftwell_box_mat);
+	leftwell_box.position.set (-100,10,0);	
+	scene.add (leftwell_box);
+	/////////////////////////////////////////////////////左畫
+	var left_box_geom = new THREE.BoxGeometry (10,65,70);
+	var left_box_mat = new THREE.MeshLambertMaterial ({color: 0xff2211});
+	left_box = new THREE.Mesh (left_box_geom, left_box_mat);
+	left_box.position.set (-99.9,10,-20);
+	left_box.name = "leftB";
+	scene.add (left_box);
+	/////////////////////////////////////////////////////
+	
+	/////////////////////////////////////////////////////中間後牆
+	var midwell_box_geom = new THREE.BoxGeometry (110,65,10);
+	var midwell_box_mat = new THREE.MeshBasicMaterial({
+            map: Ttex1,
+            side: THREE.DoubleSide
+        });
+	midwell_box = new THREE.Mesh (midwell_box_geom, midwell_box_mat);
+	midwell_box.position.set (-10,10,-80);
+	scene.add (midwell_box);
+	/////////////////////////////////////////////////////中間畫
+	var mid_box_geom = new THREE.BoxGeometry (70,65,10);
+	var mid_box_mat = new THREE.MeshLambertMaterial ({color: 0xff2211});
+	mid_box = new THREE.Mesh (mid_box_geom, mid_box_mat);
+	mid_box.position.set (10,10,-79.9);
+	mid_box.name = "midB";
+	scene.add (mid_box);
+	//////////////////////////////////////////////////////
+	
+	/////////////////////////////////////////////////////右邊後牆
+	var rightwell_box_geom = new THREE.BoxGeometry (10,65,110);
+	var rightwell_box_mat = new THREE.MeshBasicMaterial({
+            map: Ttex1,
+            side: THREE.DoubleSide
+        });
+	rightwell_box = new THREE.Mesh (rightwell_box_geom, rightwell_box_mat);
+	rightwell_box.position.set (70,10,0);
+	scene.add (rightwell_box);
+	/////////////////////////////////////////////////////右畫
+	var right_box_geom = new THREE.BoxGeometry (10,65,70);
+	var right_box_mat = new THREE.MeshLambertMaterial ({color: 0xff2211});
+	right_box = new THREE.Mesh (right_box_geom, right_box_mat);
+	right_box.position.set (69.9,10,20);
+	right_box.name = "rightB";
+	scene.add (right_box);
+	/////////////////////////////////////////////////////
+	
+	/////////////////////////////////////////////////////邊框
+	var border_geom = new THREE.BoxGeometry (110,5,10);
+	var border_mat = new THREE.MeshBasicMaterial({
+            map: Ttex2,
+            side: THREE.DoubleSide
+        });
+	boord = new THREE.Mesh (border_geom, border_mat);
+	boord1 = new THREE.Mesh (border_geom, border_mat);
+	boord2 = new THREE.Mesh (border_geom, border_mat);
+	boord.position.set(-10,45,-80);
+	scene.add (boord);
+	boord1.rotation.y = Math.PI/2; 
+	boord1.position.set(-100,45,0);
+	scene.add (boord1);
+	boord2.rotation.y = Math.PI/2; 
+	boord2.position.set(70,45,0);
+	scene.add (boord2);
+	
+	////////////////////////////////////////////////////
+	var borderB_geom = new THREE.BoxGeometry (110,65,1);
+	var borderB_mat = new THREE.MeshBasicMaterial({
+            map: Ttex2,
+            side: THREE.DoubleSide
+        });
+	boordB = new THREE.Mesh (borderB_geom, borderB_mat);
+	boordB1 = new THREE.Mesh (borderB_geom, borderB_mat);
+	boordB2 = new THREE.Mesh (borderB_geom, borderB_mat);
+	boordB.position.set(-10,10,-85);
+	scene.add (boordB);
+	boordB1.rotation.y = Math.PI/2;
+    boordB1.position.set(-105,10,0);	
+	scene.add (boordB1);
+	boordB2.rotation.y = Math.PI/2;
+    boordB2.position.set(75,10,0);	
+	scene.add (boordB2);
+	/////////////////////////////////////////////////////
+	var borderS_geom = new THREE.BoxGeometry (5,70,10);
+	var borderS_mat = new THREE.MeshBasicMaterial({
+            map: Ttex2,
+            side: THREE.DoubleSide
+        });
+	boordS = new THREE.Mesh (borderS_geom, borderS_mat);
+	boordS1 = new THREE.Mesh (borderS_geom, borderS_mat);
+	boordS2 = new THREE.Mesh (borderS_geom, borderS_mat);
+	boordS3 = new THREE.Mesh (borderS_geom, borderS_mat);
+	boordS4 = new THREE.Mesh (borderS_geom, borderS_mat);
+	boordS5 = new THREE.Mesh (borderS_geom, borderS_mat);
+    boordS.position.set(-67.5,12.3,-80);	
+	scene.add (boordS);	
+	boordS1.position.set(47.5,12.3,-80);	
+	scene.add (boordS1);
+	boordS2.rotation.y = Math.PI/2;
+    boordS2.position.set(-100,12.3,57.5);	
+	scene.add (boordS2);
+    boordS3.rotation.y = Math.PI/2;
+    boordS3.position.set(70,12.3,57.5);	
+	scene.add (boordS3);
+    boordS4.rotation.y = Math.PI/2;
+    boordS4.position.set(70,12.3,-57.5);	
+	scene.add (boordS4);
+    boordS5.rotation.y = Math.PI/2;
+    boordS5.position.set(-100,12.3,-57.5);	
+	scene.add (boordS5);	
+	/////////////////////////////////////////////////////
+	
+	
+    light = new THREE.PointLight(0xffffff);
+    light.position.set(100, 300, 200);
+    scene.add(light);
+
+    /*var gridXZ = new THREE.GridHelper(100, 10);
+    gridXZ.setColors(new THREE.Color(0xff0000), new THREE.Color(0xffffff));
+    scene.add(gridXZ);
+    */
+	var floor_geom = new THREE.PlaneGeometry(200,200);
+	var floor_mat = new THREE.MeshLambertMaterial ({
+			map: Ttex2,
+            side: THREE.DoubleSide
+        });
+	floor = new THREE.Mesh (floor_geom, floor_mat);
+	floor.position.set (-13,-23,0);
+	floor.rotation.x = Math.PI/2;
+	scene.add (floor);
+	
+    controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+    // the following is not needed for "embed" mode
+    // document.body.appendChild(renderer.domElement);
+	///////////////////////////////////////////////////////
+	window.addEventListener ('resize', onWindowResize, false);	
+
+	raycaster = new THREE.Raycaster();
+	document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+	///////////////////////////////////////////////////////
+}
+
+// remember "no warp in <body>"
+//
+
+function onDocumentMouseDown( event ) {
+
+	// PICKING DETAILS: 
+	// convert mouse.xy = [-1,1]^2 (NDC)
+	// unproject (mouse.xy, 1) to a point on the far plane (in world coordinate)
+	// set raycaster (origin, direction)
+	// find intersection objects, (closest first) 
+	// each record as
+	// [ { distance, point, face, faceIndex, object }, ... ]
+
+	event.preventDefault();
+	mouse.x = ( event.clientX / theCanvasFrame.clientWidth)* 2 - 1 ;
+	mouse.y = - ( event.clientY / theCanvasFrame.clientHeight ) * 2 + 1;
+	//alert( mouse.x );
+	//alert( window.innerHeight );
+	// find intersections
+	var vector = new THREE.Vector3( mouse.x, mouse.y, 1 ).unproject( camera );
+	raycaster.set( camera.position, vector.sub( camera.position ).normalize() );
+	var intersects = raycaster.intersectObjects( scene.children );
+	if ( intersects.length > 0 ) {
+		if (intersects[0].object.name === "leftB") spin ("left");
+		else if (intersects[0].object.name === "midB") spin ("mid");
+		else if (intersects[0].object.name === "rightB") spin ("right");
+		}
+}
+/////////////////////////////////////////////////////////////////
+function tst(which) {
+if (spin_l == 1) {
+    if (which === 1) {
+        //alert("click");
+        left_box.material = new THREE.MeshBasicMaterial({
+            map: tex1,
+            side: THREE.DoubleSide
+        });
+    } else if (which === 2) {
+        left_box.material = new THREE.MeshBasicMaterial({
+            map: tex2,
+            side: THREE.DoubleSide
+        });
+    }else if (which === 3) {
+        left_box.material = new THREE.MeshBasicMaterial({
+            map: tex3,
+            side: THREE.DoubleSide
+        });
+    }else if (which === 4) {
+        left_box.material = new THREE.MeshBasicMaterial({
+            map: tex4,
+            side: THREE.DoubleSide
+        });
+    }else if (which === 5) {
+        left_box.material = new THREE.MeshBasicMaterial({
+            map: tex5,
+            side: THREE.DoubleSide
+        });
+    }else if (which === 6) {
+        left_box.material = new THREE.MeshBasicMaterial({
+            map: tex6,
+            side: THREE.DoubleSide
+        });
+    }
+}
+if (spin_l == 2) {
+    if (which === 1) {
+        //alert("click");
+        mid_box.material = new THREE.MeshBasicMaterial({
+            map: tex1,
+            side: THREE.DoubleSide
+        });
+    } else if (which === 2) {
+        mid_box.material = new THREE.MeshBasicMaterial({
+            map: tex2,
+            side: THREE.DoubleSide
+        });
+    }else if (which === 3) {
+        mid_box.material = new THREE.MeshBasicMaterial({
+            map: tex3,
+            side: THREE.DoubleSide
+        });
+    }else if (which === 4) {
+        mid_box.material = new THREE.MeshBasicMaterial({
+            map: tex4,
+            side: THREE.DoubleSide
+        });
+    }else if (which === 5) {
+        mid_box.material = new THREE.MeshBasicMaterial({
+            map: tex5,
+            side: THREE.DoubleSide
+        });
+    }else if (which === 6) {
+        mid_box.material = new THREE.MeshBasicMaterial({
+            map: tex6,
+            side: THREE.DoubleSide
+        });
+    }
+	
+}
+if (spin_l == 3) {
+    if (which === 1) {
+        //alert("click");
+        right_box.material = new THREE.MeshBasicMaterial({
+            map: tex1,
+            side: THREE.DoubleSide
+        });
+    } else if (which === 2) {
+        right_box.material = new THREE.MeshBasicMaterial({
+            map: tex2,
+            side: THREE.DoubleSide
+        });
+    }else if (which === 3) {
+        right_box.material = new THREE.MeshBasicMaterial({
+            map: tex3,
+            side: THREE.DoubleSide
+        });
+    }else if (which === 4) {
+        right_box.material = new THREE.MeshBasicMaterial({
+            map: tex4,
+            side: THREE.DoubleSide
+        });
+    }else if (which === 5) {
+        right_box.material = new THREE.MeshBasicMaterial({
+            map: tex5,
+            side: THREE.DoubleSide
+        });
+    }else if (which === 6) {
+        right_box.material = new THREE.MeshBasicMaterial({
+            map: tex6,
+            side: THREE.DoubleSide
+        });
+    }
+	
+}
+    // debugger;
+}
+/////////////////////////////////////////////////////////////////
+function animate() {
+    /*//////////////////////////////////////
+	if (spin_l) {
+	    tst();
+		angle_l += 0.1;
+		if (angle_l > Math.PI) {
+			angle_l = 0.0;
+			spin_l = false;
+		}
+	}
+	
+	left_box.rotation.y = angle_l;
+	//////////////////////////////////////*/
+	soundTrack1.play();
+	controls.update();
+
+    requestAnimationFrame(animate);
+    render();
+}
+////////////////////////////////////////////////////////////////
+function onWindowResize()
+{
+	camera.aspect = theCanvasFrame.clientWidth / theCanvasFrame.clientHeight;
+	camera.updateProjectionMatrix();
+	renderer.setSize (theCanvasFrame.clientWidth, theCanvasFrame.clientHeight);
+}
+//////////////////////////////////////////////////////////////////
+
+function render() {
+    renderer.render(scene, camera);
+}</script>
+
+</body>
+
+</html>
